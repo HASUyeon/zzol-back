@@ -7,6 +7,7 @@
 ### 구동 방법
 
 ```shell
+pipx install poetry
 poetry install
 poetry run uvicorn app.main:app --reload
 ```
