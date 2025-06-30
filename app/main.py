@@ -1,14 +1,14 @@
 from typing import Union
 
 from fastapi import FastAPI
+from starlette.middleware.cors import CORSMiddleware
 
 from app.controllers.v1 import member_controller
-from starlette.middleware.cors import CORSMiddleware
 
 app = FastAPI()
 
 origins = [
-    "http://localhost:4000",   
+    "http://localhost:4000",
 ]
 
 app.add_middleware(
@@ -18,7 +18,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
 
 
 app.include_router(member_controller.router, prefix="/v1/members", tags=["Members"])
