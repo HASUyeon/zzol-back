@@ -1,8 +1,14 @@
 import os
+from fastapi import HTTPException
 import requests
 from sqlmodel import Session
 
-from app.schemas.auth import KakaoAccountResponse, KakaoSignInResponse
+from app.model.member import Member
+from app.schemas.auth import (
+    KakaoSignInResponse,
+    KakaoSignUpRequest,
+)
+from app.schemas.member import MemberResponse
 from app.services.member import get_member_by_field
 
 
@@ -55,15 +61,27 @@ def get_kakao_member_sign_in(session: Session, code: str):
 
     if member:
         return KakaoSignInResponse(
-            isRegistered=True,
-            kakaoId=kakao_member_info["id"],
-            kakaoAccount=kakao_member_info["kakao_account"],
-            member=member,
+            is_registered=True,
+            kakao_id=kakao_member_info["id"],
+            kakao_account=kakao_member_info["kakao_account"],
+            member=MemberResponse(**member.model_dump()),
         )
     else:
         return KakaoSignInResponse(
-            isRegistered=False,
-            kakaoId=kakao_member_info["id"],
-            kakaoAccount=kakao_member_info["kakao_account"],
+            is_registered=False,
+            kakao_id=kakao_member_info["id"],
+            kakao_account=kakao_member_info["kakao_account"],
             member=None,
         )
+
+
+def post_kakao_sign_up(session: Session, request: KakaoSignUpRequest):
+    existed_member = get_member_by_field(session, "kakao_id", request.kakao_id)
+    if existed_member:
+        raise HTTPException(status_code=409, detail="이미 등록된 회원입니다.")
+    new_member = Member(**request.model_dump())
+    session.add(new_member)
+    session.commit()
+    session.refresh(new_member)
+
+    return new_member

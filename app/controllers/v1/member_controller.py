@@ -3,10 +3,9 @@ from typing import List
 from fastapi import APIRouter, Depends
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
-from sqlmodel import Session, select
+from sqlmodel import Session
 
 from app.db.database import get_session
-from app.model.member import Member
 from app.schemas.member import MemberResponse
 from app.schemas.response import BaseResponse
 from app.services.member import get_member_by_field, get_member_list
@@ -22,7 +21,7 @@ def get_members(session: Session = Depends(get_session)):
         for member in members
     ]
     response = BaseResponse(
-        messageCode="SUCCESS",
+        message_code="SUCCESS",
         message="Members retrieved successfully",
         result=members_schema,
     )
@@ -34,10 +33,10 @@ def get_member(memberNo: int, session: Session = Depends(get_session)):
     member = get_member_by_field(session, "member_no", memberNo)
     if not member:
         return BaseResponse(
-            messageCode="SUCCESS", message="Member not found", result=None
+            message_code="SUCCESS", message="Member not found", result=None
         )
     return BaseResponse(
-        messageCode="SUCCESS",
+        message_code="SUCCESS",
         message="Members retrieved successfully",
         result=MemberResponse.model_validate(member, from_attributes=True),
     )
