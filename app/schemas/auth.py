@@ -24,7 +24,7 @@ class AuthTokens(BaseModel):
 
 class KakaoSignInResponse(BaseModel):
     is_registered: bool = Field(alias="isRegistered")  # 회원가입을 한 회원인지 여부
-    kakao_id: str = Field(alias="kakaoId")
+    kakao_id: int = Field(alias="kakaoId")
     kakao_account: KakaoAccount = Field(alias="kakaoAccount")
     member: Member | None
     # token: AuthTokens | None
