@@ -30,7 +30,7 @@ class KakaoSignInResponse(CamelModel):
     kakao_id: int = Field(description="카카오 회원 번호")
     kakao_account: KakaoAccount = Field(description="카카오 계정 정보")
     member: MemberResponse | None = Field(description="등록된 회원")
-    # token: AuthTokens | None
+    access_token: str | None = Field(default=None, description="액세스 토큰")
 
 
 class KakaoSignUpRequest(CamelModel):
@@ -42,3 +42,4 @@ class KakaoSignUpRequest(CamelModel):
 
 class KakaoSignUpResponse(CamelModel):
     member: MemberResponse = Field(description="등록된 회원")
+    access_token: str | None = Field(default=None, description="액세스 토큰")

@@ -1,16 +1,27 @@
 from typing import List
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
+from fastapi.security import OAuth2PasswordBearer
 from sqlmodel import Session
 
 from app.db.database import get_session
 from app.schemas.member import MemberResponse
 from app.schemas.response import BaseResponse
+from app.services.auth import get_member_by_access_token
 from app.services.member import get_member_by_field, get_member_list
 
 router = APIRouter()
+
+
+@router.get("/me", response_model=BaseResponse[MemberResponse])
+def get_my_info(member=Depends(get_member_by_access_token)):
+    return BaseResponse(
+        message_code="SUCCESS",
+        message="Members retrieved successfully",
+        result=MemberResponse(**member.model_dump()),
+    )
 
 
 @router.get("/members", response_model=BaseResponse[List[MemberResponse]])
