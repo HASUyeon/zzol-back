@@ -25,7 +25,12 @@ KAKAO_REDIRECT_URI = os.getenv("KAKAO_REDIRECT_URI")
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24
 ACCESS_TOKEN_SECRET_KEY = os.getenv("ACCESS_TOKEN_SECRET_KEY")
 ACCESS_TOKEN_ALGORITHM = os.getenv("ACCESS_TOKEN_ALGORITHM")
-auth_header = APIKeyHeader(name="Token", auto_error=False)
+auth_header = APIKeyHeader(name="Authorization", auto_error=False)
+
+credentials_exception = HTTPException(
+    status_code=401,
+    detail="Could not validate credentials",
+)
 
 
 def get_kakao_access_token(code: str):
@@ -76,13 +81,16 @@ def create_access_token(member: Member):
         return access_token
 
 
+def get_access_token_by_header(header_value: str = Depends(auth_header)):
+    if not header_value or not header_value.startswith("Bearer "):
+        raise credentials_exception
+    return header_value.replace("Bearer ", "")
+
+
 def get_member_by_access_token(
-    session: Session = Depends(get_session), access_token: str = Depends(auth_header)
+    session: Session = Depends(get_session),
+    access_token: str = Depends(get_access_token_by_header),
 ):
-    credentials_exception = HTTPException(
-        status_code=401,
-        detail="Could not validate credentials",
-    )
     if access_token and ACCESS_TOKEN_SECRET_KEY and ACCESS_TOKEN_ALGORITHM:
         try:
             payload = jwt.decode(
